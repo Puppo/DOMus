@@ -1,0 +1,21 @@
+# dependencies
+node_modules/
+
+# build output
+dist/
+*.tsbuildinfo
+
+# tokensave (local code-graph cache)
+.tokensave/
+
+# agent skill caches
+.agents/
+skills-lock.json
+
+# editor
+.vscode/
+.idea/
+
+# logs
+*.log
+npm-debug.log*

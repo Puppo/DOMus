@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>DOMus — 3D Bedroom Configurator</title>
+    <script type="agent-context">
+---
+name: domus
+description: Design a 3D bedroom with coordinated furniture. Start with `list_room_styles` to choose an aesthetic, then `get_style_guide` and `furniture_combo_for_style` to plan, then the action tools (`add_furniture`, `set_furniture_color`, etc.) to build.
+tools:
+  # advisors (read first, return text)
+  - list_room_styles
+  - get_style_guide
+  - suggest_color_palette
+  - suggest_layout
+  - furniture_combo_for_style
+  - get_design_principles
+  # actions (mutate the 3D scene)
+  - get_room_state
+  - set_room_dimensions
+  - set_room_colors
+  - add_furniture
+  - remove_furniture
+  - list_furniture
+  - set_furniture_color
+  - set_furniture_scale
+  - move_furniture
+  - rotate_furniture
+  - undo
+  - redo
+  - reset_room
+---
+
+# DOMus — Bedroom Design Skill Pack
+
+You are designing a 3D bedroom using the DOMus web app. Follow this workflow:
+
+1. **Discover style** — call `list_room_styles` and let the user (or your own judgment) pick one.
+2. **Read the guide** — call `get_style_guide` to learn the palette, rules, and proportions for the chosen style.
+3. **Plan layout** — call `get_room_state` to know current dimensions, then `suggest_layout` for the chosen style.
+4. **Execute** — call action tools in this typical order: `set_room_dimensions` → `set_room_colors` → `add_furniture` per item with explicit `position` coordinates → `set_furniture_color` for each → `move_furniture` / `rotate_furniture` for fine-tuning.
+5. **Iterate** — call `get_design_principles` to deepen a specific aspect, or `undo` to roll back.
+
+Coordinate system: room origin at floor center on one corner. `x` along room width, `z` along room length, `y` up from the floor. `y=0` means on the floor. To place against a wall, set `x ≈ 0` or `x ≈ room.width` (and similar for `z`). Valid range for any axis is `[0, room.dimension]`. Out-of-bounds positions are clamped silently.
+
+Always prefer the advisor tools over inventing values; they encode curated design knowledge.
+    </script>
+  </head>
+  <body class="bg-neutral-950 text-neutral-100">
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>
