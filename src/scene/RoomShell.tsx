@@ -1,4 +1,5 @@
 import { useMemo } from 'react';
+import { DoubleSide } from 'three';
 import type { Room } from '../store/types';
 
 interface Props {
@@ -6,13 +7,21 @@ interface Props {
 }
 
 /**
- * Parametric room: floor + ceiling + 4 walls drawn as thin boxes positioned
- * along the room edges. The room is anchored at (0, 0, 0) on the floor corner.
+ * Parametric room: floor (a thin box) + ceiling and 4 walls (zero-thickness
+ * planes, each oriented with its normal pointing INTO the room). Because a
+ * plane only has one visible face (default FrontSide renders only the side
+ * the normal points toward), each wall/the ceiling is only rendered when the
+ * camera is on the room-interior side of it. That makes whichever wall sits
+ * between the camera and the room disappear automatically as the camera
+ * orbits, while far walls keep showing their interior surface — a "dollhouse"
+ * cutaway. (A thin box wouldn't work here: it has two real faces, so toggling
+ * `side` just swaps which one draws — the wall stays opaque either way.)
+ * The room is anchored at (0, 0, 0) on the floor corner.
  */
 export default function RoomShell({ room }: Props) {
   const { width: w, length: l, height: h, wallColor, floorColor } = room;
 
-  // Thickness used for walls. 0.05 m feels right for visual presence.
+  // Thickness used for the floor slab only. 0.05 m feels right for visual presence.
   const T = 0.05;
 
   const ceilingColor = useMemo(() => darken(wallColor, 0.85), [wallColor]);
@@ -25,32 +34,31 @@ export default function RoomShell({ room }: Props) {
         <meshStandardMaterial color={floorColor} roughness={0.85} />
       </mesh>
 
-      {/* Ceiling */}
-      <mesh position={[w / 2, h + T / 2, l / 2]} receiveShadow>
-        <boxGeometry args={[w, T, l]} />
+      {/* Ceiling — horizontal plane, normal pointing down (into the room). */}
+      <mesh position={[w / 2, h, l / 2]} rotation={[Math.PI / 2, 0, 0]} receiveShadow>
+        <planeGeometry args={[w, l]} />
         <meshStandardMaterial color={ceilingColor} roughness={0.95} />
       </mesh>
 
-      {/* Walls — two long (Z-aligned) and two short (X-aligned). */}
-      {/* Wall along X = 0 (left) */}
-      <mesh position={[-T / 2, h / 2, l / 2]} castShadow receiveShadow>
-        <boxGeometry args={[T, h, l]} />
-        <meshStandardMaterial color={wallColor} roughness={0.95} />
+      {/* Wall along X = 0 (left) — normal points +X, into the room. */}
+      <mesh position={[0, h / 2, l / 2]} rotation={[0, Math.PI / 2, 0]} castShadow receiveShadow>
+        <planeGeometry args={[l, h]} />
+        <meshStandardMaterial color={wallColor} roughness={0.95} shadowSide={DoubleSide} />
       </mesh>
-      {/* Wall along X = width (right) */}
-      <mesh position={[w + T / 2, h / 2, l / 2]} castShadow receiveShadow>
-        <boxGeometry args={[T, h, l]} />
-        <meshStandardMaterial color={wallColor} roughness={0.95} />
+      {/* Wall along X = width (right) — normal points -X, into the room. */}
+      <mesh position={[w, h / 2, l / 2]} rotation={[0, -Math.PI / 2, 0]} castShadow receiveShadow>
+        <planeGeometry args={[l, h]} />
+        <meshStandardMaterial color={wallColor} roughness={0.95} shadowSide={DoubleSide} />
       </mesh>
-      {/* Wall along Z = 0 (front) */}
-      <mesh position={[w / 2, h / 2, -T / 2]} castShadow receiveShadow>
-        <boxGeometry args={[w, h, T]} />
-        <meshStandardMaterial color={wallColor} roughness={0.95} />
+      {/* Wall along Z = 0 (front) — normal points +Z, into the room. */}
+      <mesh position={[w / 2, h / 2, 0]} castShadow receiveShadow>
+        <planeGeometry args={[w, h]} />
+        <meshStandardMaterial color={wallColor} roughness={0.95} shadowSide={DoubleSide} />
       </mesh>
-      {/* Wall along Z = length (back) */}
-      <mesh position={[w / 2, h / 2, l + T / 2]} castShadow receiveShadow>
-        <boxGeometry args={[w, h, T]} />
-        <meshStandardMaterial color={wallColor} roughness={0.95} />
+      {/* Wall along Z = length (back) — normal points -Z, into the room. */}
+      <mesh position={[w / 2, h / 2, l]} rotation={[0, Math.PI, 0]} castShadow receiveShadow>
+        <planeGeometry args={[w, h]} />
+        <meshStandardMaterial color={wallColor} roughness={0.95} shadowSide={DoubleSide} />
       </mesh>
     </group>
   );

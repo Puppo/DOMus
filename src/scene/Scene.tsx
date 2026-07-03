@@ -4,6 +4,7 @@ import { useRoomStore } from '../store/useRoomStore';
 import RoomShell from './RoomShell';
 import FurnitureMesh from './FurnitureMesh';
 import CameraRig from './CameraRig';
+import { getDefaultCameraPosition } from './cameraUtils';
 
 export default function Scene() {
   const room = useRoomStore((s) => s.room);
@@ -12,7 +13,7 @@ export default function Scene() {
   return (
     <Canvas
       shadows
-      camera={{ position: [room.width / 2, room.height * 1.2, room.length / 2 + 8], fov: 45 }}
+      camera={{ position: getDefaultCameraPosition(room).toArray(), fov: 45 }}
       gl={{ antialias: true, preserveDrawingBuffer: false }}
     >
       {/* Clicking empty space deselects */}
@@ -44,7 +45,16 @@ export default function Scene() {
         <FurnitureMesh key={item.id} item={item} />
       ))}
 
-      <OrbitControls makeDefault target={[room.width / 2, room.height / 2, room.length / 2]} />
+      <OrbitControls
+        makeDefault
+        target={[room.width / 2, room.height / 2, room.length / 2]}
+        enableDamping
+        dampingFactor={0.08}
+        minDistance={Math.max(room.width, room.length) * 0.4}
+        maxDistance={Math.max(room.width, room.length) * 3.5}
+        minPolarAngle={0.05}
+        maxPolarAngle={Math.PI / 2 - 0.02}
+      />
       <CameraRig />
     </Canvas>
   );

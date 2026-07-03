@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 import { useThree } from '@react-three/fiber';
 import { useRoomStore } from '../store/useRoomStore';
+import { getDefaultCameraPosition, getDefaultCameraTarget } from './cameraUtils';
 
 /**
  * Keeps the camera framed on the room when dimensions change drastically.
@@ -11,10 +12,8 @@ export default function CameraRig() {
   const camera = useThree((s) => s.camera);
 
   useEffect(() => {
-    const maxDim = Math.max(room.width, room.length);
-    const dist = maxDim * 1.8;
-    camera.position.set(room.width / 2, room.height * 1.2, room.length / 2 + dist);
-    camera.lookAt(room.width / 2, room.height / 2, room.length / 2);
+    camera.position.copy(getDefaultCameraPosition(room));
+    camera.lookAt(getDefaultCameraTarget(room));
   }, [room.width, room.length, room.height, camera]);
 
   return null;
