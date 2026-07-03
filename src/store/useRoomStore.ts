@@ -2,7 +2,7 @@
 // WebMCP execute handlers call into this store; that's the whole point.
 
 import { create } from 'zustand';
-import { persist } from 'zustand/middleware';
+import { createJSONStorage, persist } from 'zustand/middleware';
 import { immer } from 'zustand/middleware/immer';
 import { temporal } from 'zundo';
 import { v4 as uuid } from 'uuid';
@@ -188,6 +188,7 @@ export const useRoomStore = create<RoomState>()(
     ),
     {
       name: 'domus:v1',
+      storage: createJSONStorage(() => localStorage),
       partialize: (state) => ({ room: state.room, items: state.items }) as any,
     },
   ),

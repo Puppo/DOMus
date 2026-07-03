@@ -1,7 +1,11 @@
 // Unit tests for the room store. Node environment — we do NOT render React.
 // The persist middleware needs a localStorage shim because Node has none.
 
-import { describe, it, expect, beforeEach } from 'vitest';
+import { describe, it, expect, beforeEach, vi } from 'vitest';
+
+// Silence the noisy zustand persist warning that fires from the default
+// createJSONStorage(() => window.localStorage) path — irrelevant in Node.
+vi.spyOn(console, 'warn').mockImplementation(() => {});
 
 // In-memory localStorage shim BEFORE the store import fires persist.
 class MemoryStorage implements Storage {
@@ -15,7 +19,7 @@ class MemoryStorage implements Storage {
 }
 (globalThis as any).localStorage = new MemoryStorage();
 
-import { useRoomStore } from '../src/store/useRoomStore';
+import { useRoomStore, undo, redo, clearHistory } from '../src/store/useRoomStore';
 import { CATALOG } from '../src/store/catalog';
 
 const initial = () => useRoomStore.getState();
@@ -129,5 +133,43 @@ describe('removeFurniture', () => {
     initial().removeFurniture(initial().items[1].id);
     expect(initial().selectedId).toBe(a);
     expect(initial().items).toHaveLength(1);
+  });
+});
+
+describe('selectFurniture', () => {
+  it('sets and clears selectedId', () => {
+    expect(initial().selectedId).toBeNull();
+    const id = initial().addFurniture('lamp', { position: { x: 1, y: 0, z: 1 } });
+    // addFurniture auto-selects the new item.
+    expect(initial().selectedId).toBe(id);
+    initial().selectFurniture(null);
+    expect(initial().selectedId).toBeNull();
+    initial().selectFurniture(id);
+    expect(initial().selectedId).toBe(id);
+  });
+});
+
+describe('undo / redo', () => {
+  beforeEach(() => {
+    // The temporal store accumulates across tests. Clear history between
+    // runs so each test starts from a known undo stack.
+    clearHistory();
+  });
+
+  it('undo reverses the last mutation; redo replays it', () => {
+    const before = initial().items.length;
+    initial().addFurniture('lamp', { position: { x: 1, y: 0, z: 1 } });
+    expect(initial().items).toHaveLength(before + 1);
+    undo();
+    expect(initial().items).toHaveLength(before);
+    redo();
+    expect(initial().items).toHaveLength(before + 1);
+  });
+
+  it('undo on an empty history is a no-op', () => {
+    const lenBefore = initial().items.length;
+    // zundo's undo on empty stack is a no-op — just verify it does not throw.
+    expect(() => undo()).not.toThrow();
+    expect(initial().items).toHaveLength(lenBefore);
   });
 });

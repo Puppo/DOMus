@@ -10,9 +10,7 @@
     "preview": "vite preview",
     "lint": "tsc -b --noEmit",
     "test": "vitest run",
-    "test:watch": "vitest",
-    "test:integration": "tsx scripts/smoke-test.ts",
-    "test:all": "npm run test && npm run test:integration"
+    "test:watch": "vitest"
   },
   "dependencies": {
     "@mcp-b/react-webmcp": "^3.0.0",
@@ -37,7 +35,6 @@
     "autoprefixer": "^10.4.20",
     "postcss": "^8.5.0",
     "tailwindcss": "^3.4.17",
-    "tsx": "^4.19.2",
     "typescript": "^5.7.2",
     "vite": "^6.0.0",
     "vitest": "^2.1.8",

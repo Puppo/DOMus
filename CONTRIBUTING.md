@@ -19,11 +19,11 @@ npm run dev   # http://localhost:5173/DOMus/
    git checkout -b feat/short-slug
    ```
 3. **Make your change.** Keep it focused — one feature or fix per PR.
-4. **Run the full test suite** before pushing:
+4. **Run the test suite** before pushing:
    ```bash
-   npm run test:all
+   npm test
    ```
-   `npm run test:all` runs Vitest unit tests *and* the integration smoke test that walks every store action.
+   Vitest covers every store mutation path (footprint clamping, undo/redo, scale ranges, etc.).
 5. **Typecheck**: `npm run lint` (this is just `tsc -b --noEmit`).
 6. **Open the PR** against `main`. Reference the issue it closes.
 

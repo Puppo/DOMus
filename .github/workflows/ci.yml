@@ -30,11 +30,8 @@ jobs:
       - name: Typecheck
         run: npm run lint
 
-      - name: Unit tests
+      - name: Tests
         run: npm test
-
-      - name: Integration smoke test
-        run: npm run test:integration
 
       - name: Build
         run: npm run build

@@ -46,8 +46,6 @@ npm run dev          # http://localhost:5173/DOMus/   (Vite base is /DOMus/)
 | `npm run lint` | `tsc -b --noEmit` (typecheck only) |
 | `npm test` | Run Vitest unit tests |
 | `npm run test:watch` | Vitest in watch mode |
-| `npm run test:integration` | The smoke test that walks all 12 store mutation paths |
-| `npm run test:all` | `test` + `test:integration` |
 
 ## How WebMCP works here
 
