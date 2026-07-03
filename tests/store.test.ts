@@ -7,17 +7,7 @@ import { describe, it, expect, beforeEach, vi } from 'vitest';
 // createJSONStorage(() => window.localStorage) path — irrelevant in Node.
 vi.spyOn(console, 'warn').mockImplementation(() => {});
 
-// In-memory localStorage shim BEFORE the store import fires persist.
-class MemoryStorage implements Storage {
-  private store = new Map<string, string>();
-  get length(): number { return this.store.size; }
-  clear(): void { this.store.clear(); }
-  getItem(key: string): string | null { return this.store.get(key) ?? null; }
-  key(i: number): string | null { return [...this.store.keys()][i] ?? null; }
-  removeItem(key: string): void { this.store.delete(key); }
-  setItem(key: string, value: string): void { this.store.set(key, value); }
-}
-(globalThis as any).localStorage = new MemoryStorage();
+// localStorage shim lives in tests/setup.ts (runs before any test import).
 
 import { useRoomStore, undo, redo, clearHistory } from '../src/store/useRoomStore';
 import { CATALOG } from '../src/store/catalog';
